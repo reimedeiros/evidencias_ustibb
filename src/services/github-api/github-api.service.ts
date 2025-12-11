@@ -6,9 +6,15 @@ import { firstValueFrom } from 'rxjs';
 export class GithubApiService {
     constructor(private readonly httpService: HttpService) { }
 
-    async getProjectsByOrg(org: string) {
-        const URL = `${process.env['API_GITHUB']}/orgs/bbvinet/repos`;
-        const { data } = await firstValueFrom(this.httpService.get(URL));
+    async getData(url: string) {
+
+        const response = this.httpService.get(url, {
+            headers: {
+                Authorization: 'Bearer ' + process.env['GITHUB_TOKEN'],
+            },
+        });
+
+        const { data } = await firstValueFrom(response);
 
         return data;
     }
