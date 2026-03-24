@@ -179,10 +179,11 @@ export class GithubService {
     const branches = await this.githubApiServce.getData(URL);
 
     for (const branch of branches) {
-      // console.log('branch = ', branch.name, ' -> includes ? ', branchesArray.includes(branch.name))
-      if (!branchesArray.includes(branch.name)) {
+      const ignoredBranches = ['main', 'release', 'feat/desenv'];
+      if (!branchesArray.includes(branch.name) && !ignoredBranches.some(ignored => branch.name.includes(ignored))) {
         branchesArray.push(branch.name)
       }
+
     }
     return branchesArray;
   }
