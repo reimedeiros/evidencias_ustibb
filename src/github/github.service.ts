@@ -3,6 +3,7 @@ import fs from 'fs';
 import { GithubApiService } from '../services/github-api/github-api.service';
 import { BodyDateInterface } from '../services/interfaces/github.interfaces';
 import { artifacts } from './utils/artifacts';
+import { IBranch } from './interfaces/iBranch.interface';
 
 interface GitHubCommitFile {
   filename: string;
@@ -23,7 +24,7 @@ type EvidenceItem = {
 
 @Injectable()
 export class GithubService {
-  constructor(private readonly githubApiServce: GithubApiService) {}
+  constructor(private readonly githubApiServce: GithubApiService) { }
 
   async getEvidencesByOrg(org: string, body?: BodyDateInterface) {
     const dataProjects = await this.getCommits(org, body);
@@ -173,16 +174,26 @@ export class GithubService {
   }
 
   private async getBranchesByOrgAndProject(org: string, project: string) {
+    let branches: IBranch[] = [];
     const branchesArray: string[] = [];
-    const URL = `${process.env['API_GITHUB']}/repos/${org}/${project}/branches`;
+    let page = 1;
 
-    const branches = await this.githubApiServce.getData(URL);
+    while (true) {
+      const URL = `${process.env['API_GITHUB']}/repos/${org}/${project}/branches?per_page=100&page=${page}`;
+      const getBranches = await this.githubApiServce.getData(URL);
+      branches = branches.concat(getBranches);
+      if (getBranches.length === 0) {
+        break;
+      }
+      page++;
+    }
 
     for (const branch of branches) {
-      // console.log('branch = ', branch.name, ' -> includes ? ', branchesArray.includes(branch.name))
-      if (!branchesArray.includes(branch.name)) {
+      const ignoredBranches = ['main', 'release', 'feat/desenv'];
+      if (!branchesArray.includes(branch.name) && !ignoredBranches.some(ignored => branch.name.includes(ignored))) {
         branchesArray.push(branch.name)
       }
+
     }
     return branchesArray;
   }
