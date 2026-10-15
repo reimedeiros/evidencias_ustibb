@@ -191,6 +191,8 @@ export class GithubService {
     for (const branch of branches) {
       const ignoredBranches = ['main', 'release', 'feat/desenv'];
       if (!branchesArray.includes(branch.name) && !ignoredBranches.some(ignored => branch.name.includes(ignored))) {
+      const ignoredBranches = ['main', 'release', 'feat/desenv'];
+      if (!branchesArray.includes(branch.name) && !ignoredBranches.some(ignored => branch.name.includes(ignored))) {
         branchesArray.push(branch.name)
       }
 
